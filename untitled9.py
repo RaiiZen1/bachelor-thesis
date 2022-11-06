@@ -58,13 +58,13 @@ def consumer_heuristics(btc_addr:str):
             addresses.add(target)
             b += 1
             c = (b / a) * 100 
-            print("---------------LOG-FILE---------------")
-            print(b + "/" + a + " " + c + "%")
+            print("----------------------------LOG-FILE----------------------------")
+            print(str(b) + "/" + str(a) + " " + str(c) + "%")
             print("#" + str(datetime.now()))
             print("#Viewed Address:\t" + btc_addr)
             print("#Found Transaction:\t" + i["hash"])
             print("#Consumer Address:\t" + target)
-            print("--------------------------------------")
+            print("----------------------------------------------------------------")
             print("\n")
             
     d = {"Txs":transactions}

@@ -6,6 +6,7 @@ Created on Fri Oct 28 09:55:52 2022
 """
 import pandas as pd
 import time
+from datetime import datetime
 import csv
 
 # Consumer Heuristic + Auszahlungspattern folgen (3QQ... -> A1 und 3QQ...)
@@ -48,12 +49,15 @@ def consumer_heuristics(btc_addr:str):
     txs = tx_patterns_to_list(btc_addr) 
     transactions = list()
     addresses = set()
+    a = len(txs)
+    b = 0
     for i in txs:    
         target = identify_target_addr(i, btc_addr)
         if is_target_consumer(target):
             transactions.append(i)
             addresses.add(target)
             print("---------------LOG-FILE---------------")
+            print("#" + datetime.now())
             print("#Viewed Address:\t" + btc_addr)
             print("#Found Transaction:\t" + i["hash"])
             print("#Consumer Address:\t" + target)

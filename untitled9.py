@@ -5,15 +5,19 @@ Created on Fri Oct 28 09:55:52 2022
 @author: Markus Herre
 """
 import pandas as pd
+import numpy as np
 import time
 from datetime import datetime
-import csv
+import json
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
+
 
 # Consumer Heuristic + Auszahlungspattern folgen (3QQ... -> A1 und 3QQ...)
 def get_txs_data(your_btc_address:str, page_size:int):
     transactions_url = 'https://blockchain.info/rawaddr/' + your_btc_address + '?limit=' + str(page_size)
     df = pd.read_json(transactions_url)
-    time.sleep(6)
+    time.sleep(5)
     return df["txs"]
 
 # Überprüft, ob eine Transaktion nur einen Input hat und nur zwei Outputs. Falls dies der Fall ist, wird überprüft,
@@ -82,10 +86,10 @@ def consumer_heuristics(btc_addr:str):
 # die diesem Schema folgen unserer Liste hinzu. Diese geben wir am Ende auch zurück.
 def tx_patterns_to_list(btc_addr:str):
     txs = get_txs_data(btc_addr, 99999)
-    pattern_txs = list()   
+    pattern_txs = list() 
     for i in txs:
-        if is_tx_a_buy(i):
-            pattern_txs.append(i)        
+        if is_tx_a_buy(i) and i["result"] < 0:
+            pattern_txs.append(i)
     return pattern_txs
 
 # Wir checken, ob die Output Adressen unsere Transaktion. Da unsere Outputs nie ghrößer als 2 sind, geben wir jene 
@@ -105,9 +109,8 @@ def is_target_consumer(target:str):
             if i["vout_sz"] > 2:
                 return False
     return True
-       
-        
-    
+
+ 
 if __name__ == "__main__":
     # TRANSAKTIONEN NACH PATTERN GEFILTERT #########
     # with open('addresses.csv', newline='') as f:
@@ -117,9 +120,27 @@ if __name__ == "__main__":
     # for i in data:  
     #     tx_patterns_to_csv(i[1])
     #     print("Done with " + i[1])
-    ################################################
+    ################################################ 
     # consumer_heuristics("3Kb8qcEAJt5By4tALPLTMJR477hpk1UZ8K")
     consumer_heuristics("3QmfRfKx98S96fBdjqWGfqHfzFd4xfdnEu")
+    ############Adressen bereinigt##################
+    # df = pd.read_csv(
+    #     "Consumer Heuristics\\Addresses\\2021\\3KF9a9xAMrmjdCV7YHN31JLLNLGfJsFrXJ_consumer_heuristic_addr.csv"
+    #     )
+    # df2 = pd.read_csv("addresses.csv")
+    # for i in df["Addr"]:
+    #     for j in df2["Address"]:
+    #         if i == j:
+    #             print(i + " == " + j)
+    ###############################################
+   
+    
+
+      
+
+    
+
+    
 
   
     

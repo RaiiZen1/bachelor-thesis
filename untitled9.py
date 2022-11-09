@@ -50,35 +50,39 @@ def tx_patterns_to_csv(btc_addr:str):
 # Für jede Transaktion, welche unserem Auszahlungspattern folgt, holen wir uns zuerst die potentielle BUY Adresse. 
 # Diese Adresse wiederum überprüfen wir und schauen, ob sie unserem Consumer Heursitik Pattern entspricht
 def consumer_heuristics(btc_addr:str):
-    txs = tx_patterns_to_list(btc_addr) 
-    transactions = list()
-    addresses = set()
-    a = len(txs) 
-    b = 0
-    for i in txs:    
-        target = identify_target_addr(i, btc_addr)
-        b += 1
-        if is_target_consumer(target):
-            transactions.append(i)
-            addresses.add(target)   
-            c = round((b / a) * 100, 2) 
-            print("----------------------------------------LOG-FILE----------------------------------------")
-            print("#Progress:\t\t" + str(b) + "/" + str(a) + " (" + str(c) + "%)")
-            print("#Datetime:\t\t" + str(datetime.now()))
-            print("#Viewed Address:\t" + btc_addr)
-            print("#Found Transaction:\t" + i["hash"])
-            print("#Consumer Address:\t" + target)
-            print("----------------------------------------------------------------------------------------")
-            print("\n")
-            
+    try:
+        txs = tx_patterns_to_list(btc_addr) 
+        transactions = list()
+        addresses = set()
+        a = len(txs) 
+        b = 0
+        for i in txs:    
+            target = identify_target_addr(i, btc_addr)
+            b += 1
+            if is_target_consumer(target):
+                transactions.append(i)
+                addresses.add(target)   
+                c = round((b / a) * 100, 2) 
+                print("----------------------------------------LOG-FILE----------------------------------------")
+                print("#Progress:\t\t" + str(b) + "/" + str(a) + " (" + str(c) + "%)")
+                print("#Datetime:\t\t" + str(datetime.now()))
+                print("#Viewed Address:\t" + btc_addr)
+                print("#Found Transaction:\t" + i["hash"])
+                print("#Consumer Address:\t" + target)
+                print("----------------------------------------------------------------------------------------")
+                print("\n")
+            if b == 4:
+                raise Exception("SORRY")
+    except:
+        print("ERROR")
     d = {"Txs":transactions}
     df = pd.DataFrame(d)
-    df.to_csv("Consumer Heuristics/Transactions/2021/" + btc_addr + "_consumer_heuristic_tx.csv")
+    df.to_csv("Consumer Heuristics/Transactions/2020/" + btc_addr + "_consumer_heuristic_tx.csv")
     
     addresses = list(addresses)
     d = {"Addr":addresses}
     df = pd.DataFrame(d)
-    df.to_csv("Consumer Heuristics/Addresses/2021/" + btc_addr + "_consumer_heuristic_addr.csv")
+    df.to_csv("Consumer Heuristics/Addresses/2020/" + btc_addr + "_consumer_heuristic_addr.csv")
             
 
 # Wir beginnen mit dem Besorgen aller Transaktionen unserer BTC Adresse. Anschließend überprüfen wir jede Adresse,

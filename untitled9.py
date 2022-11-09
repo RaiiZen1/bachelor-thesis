@@ -71,10 +71,15 @@ def consumer_heuristics(btc_addr:str):
                 print("#Consumer Address:\t" + target)
                 print("----------------------------------------------------------------------------------------")
                 print("\n")
-            if b == 4:
-                raise Exception("SORRY")
     except:
-        print("ERROR")
+        c = round((b / a) * 100, 2)                     
+        print("-----------------------------------------ERROR------------------------------------------")
+        print("#Progress:\t\t" + str(b) + "/" + str(a) + " (" + str(c) + "%)")
+        print("#Datetime:\t\t" + str(datetime.now()))
+        print("#Viewed Address:\t" + btc_addr)
+        print("----------------------------------------------------------------------------------------")
+        print("\n")
+        
     d = {"Txs":transactions}
     df = pd.DataFrame(d)
     df.to_csv("Consumer Heuristics/Transactions/2020/" + btc_addr + "_consumer_heuristic_tx.csv")

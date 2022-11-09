@@ -17,7 +17,7 @@ import matplotlib.ticker as mtick
 def get_txs_data(your_btc_address:str, page_size:int):
     transactions_url = 'https://blockchain.info/rawaddr/' + your_btc_address + '?limit=' + str(page_size)
     df = pd.read_json(transactions_url)
-    time.sleep(5)
+    time.sleep(6)
     return df["txs"]
 
 # Überprüft, ob eine Transaktion nur einen Input hat und nur zwei Outputs. Falls dies der Fall ist, wird überprüft,

@@ -121,7 +121,7 @@ if __name__ == "__main__":
     #     tx_patterns_to_csv(i[1])
     #     print("Done with " + i[1])
     ################################################ 
-    # consumer_heuristics("3Kb8qcEAJt5By4tALPLTMJR477hpk1UZ8K")
+    consumer_heuristics("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
     consumer_heuristics("3QmfRfKx98S96fBdjqWGfqHfzFd4xfdnEu")
     ############Adressen bereinigt##################
     # df = pd.read_csv(

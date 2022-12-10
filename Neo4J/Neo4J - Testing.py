@@ -184,7 +184,7 @@ if __name__ == "__main__":
     
     # a = get_all_Txs("1M6EFBLRZHWMttk2hsGK8ttf1AXBaxjm9r")
     # print(a)
-    f = get_related_addresses("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
+    f = get_related_addresses("1Frg9Wm3WfdMwru2GGnmuFmk3WtnegQ47B")
     print(f)
     
     

@@ -7,6 +7,7 @@ Created on Tue Dec  6 16:10:46 2022
 
 from neo4j import GraphDatabase
 from union_find import UnionFind
+from multiprocessing import Process, Manager
 import pandas as pd
 import csv
 

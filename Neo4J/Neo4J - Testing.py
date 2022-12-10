@@ -93,6 +93,39 @@ def multi_input_heuristic(addr:str):
         addresses.add(addr)
     return addresses
 
+def multi_input_heuristic_iter(addr: str):
+    # Initialize the set of all addresses to be empty
+    all_addresses = set()
+    
+    # Initialize the queue of addresses to process with the given address
+    queue = [addr]
+    
+    # Initialize the set of visited addresses to be empty
+    visited = set()
+    
+    # Use a while loop to repeatedly apply the multi_input_heuristic function until the queue is empty
+    while queue:
+        # Get the next address from the queue
+        a = queue.pop()
+        
+        # If the address has already been visited, continue to the next iteration
+        if a in visited:
+            continue
+        
+        # Use the multi_input_heuristic function to get the set of addresses that were used together as inputs with the given address
+        addresses = multi_input_heuristic(a)
+        
+        # Add the address to the set of visited addresses
+        visited.add(a)
+        
+        # Add the resulting set of addresses to the set of all addresses
+        all_addresses.update(addresses)
+        
+        # Add the resulting addresses to the queue to be processed in the next iteration
+        queue.extend(addresses)
+    
+    # Return the set of all addresses that were used together as inputs with the given address
+    return all_addresses
     
 def multi_input_heuristic_iter_parallel(addr: str):
     # Initialize the set of all addresses to be empty

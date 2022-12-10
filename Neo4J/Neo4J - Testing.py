@@ -93,73 +93,51 @@ def multi_input_heuristic(addr:str):
     return addresses
 
     
-# def multi_input_heuristic_rec(addr: str):
-#     # Initialize the set of all addresses to be empty
-#     all_addresses = set()
-    
-#     # Initialize the set of visited addresses to be empty
-#     visited = set()
-    
-#     # Define a helper function to recursively apply the multi input heuristic on the given address
-#     def helper(addr: str):
-#         # If the address has already been visited, return
-#         if addr in visited:
-#             return
-        
-#         # Use the multi_input_heuristic function to get the set of addresses that were used together as inputs with the given address
-#         addresses = multi_input_heuristic(addr)
-        
-#         # Add the address to the set of visited addresses
-#         visited.add(addr)
-        
-#         # Add the resulting set of addresses to the set of all addresses
-#         all_addresses.update(addresses)
-        
-#         # Recursively apply the helper function on each of the resulting addresses
-#         for a in addresses:
-#             helper(a)
-    
-#     # Call the helper function to recursively apply the multi input heuristic on the given address
-#     helper(addr)
-    
-#     # Return the set of all addresses that were used together as inputs with the given address
-#     return all_addresses
-
-def multi_input_heuristic_rec(addr: str, max_depth: int, depth: int = 0):
+def multi_input_heuristic_iter_parallel(addr: str):
     # Initialize the set of all addresses to be empty
     all_addresses = set()
+    
+    # Initialize the queue of addresses to process with the given address
+    queue = [addr]
     
     # Initialize the set of visited addresses to be empty
     visited = set()
     
-    # Define a function that recursively applies the multi-input heuristic to the given address
-    def explore(addr: str, depth: int):
-        # Check if the maximum depth has been reached
-        if depth >= max_depth:
-            print()
-            print("MAX DEPTH REACHED FOR:")
-            print(addr)
-            print()
+    # Define a helper function that processes the given address and adds its results to the set of all addresses
+    def helper(addr: str, all_addresses: set, visited: set, queue: list):
+        # If the address has already been visited, return
+        if addr in visited:
             return
         
-        # Apply the multi-input heuristic to the given address
+        # Use the multi_input_heuristic function to get the set of addresses that were used together as inputs with the given address
         addresses = multi_input_heuristic(addr)
         
-        # Add the returned addresses to the set of all addresses
+        # Add the address to the set of visited addresses
+        visited.add(addr)
+        
+        # Add the resulting set of addresses to the set of all addresses
         all_addresses.update(addresses)
         
-        # Iterate over the returned addresses
-        for address in addresses:
-            # If the address has not been visited, recursively explore it
-            if address not in visited:
-                visited.add(address)
-                explore(address, depth + 1)
-                
-    # Start the recursive exploration from the given address
-    explore(addr, depth)
-    # Remove duplicates from the all_addresses set
-    all_addresses = set(all_addresses)    
-    # Return the set of all addresses
+        # Add the resulting addresses to the queue to be processed in the next iteration
+        queue.extend(addresses)
+    
+    # Use a while loop to repeatedly apply the multi_input_heuristic function until the queue is empty
+    while queue:
+        # Start a new process for each address in the queue
+        processes = []
+        for a in queue:
+            p = Process(target=helper, args=(a, all_addresses, visited, queue))
+            p.start()
+            processes.append(p)
+        
+        # Wait for all processes to finish
+        for p in processes:
+            p.join()
+        
+        # Clear the queue
+        queue.clear()
+    
+    # Return the set of all addresses that were used together as inputs with the given address
     return all_addresses
 
 
@@ -182,7 +160,7 @@ def get_related_addresses(addr: str):
         # Skip the address if it is already part of a heuristic result
         if any(address in result for result in heuristic_results):
             continue
-        result = multi_input_heuristic_rec(address, 100)
+        result = multi_input_heuristic_iter_parallel(address)
         # Add the result to the list of heuristic results
         print("Found Entity: ")
         print(result)

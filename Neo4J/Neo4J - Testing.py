@@ -7,9 +7,9 @@ Created on Tue Dec  6 16:10:46 2022
 
 from neo4j import GraphDatabase
 from union_find import UnionFind
-from multiprocessing import Process, Manager
 import pandas as pd
 import csv
+from multiprocessing import Process, Manager
 
 
 
@@ -93,6 +93,7 @@ def multi_input_heuristic(addr:str):
         addresses.add(addr)
     return addresses
 
+
 def multi_input_heuristic_iter(addr: str):
     # Initialize the set of all addresses to be empty
     all_addresses = set()
@@ -100,8 +101,8 @@ def multi_input_heuristic_iter(addr: str):
     # Initialize the queue of addresses to process with the given address
     queue = [addr]
     
-    # Initialize the set of visited addresses to be empty
-    visited = set()
+    # Initialize the dictionary of visited addresses to be empty
+    visited = {}
     
     # Use a while loop to repeatedly apply the multi_input_heuristic function until the queue is empty
     while queue:
@@ -115,61 +116,14 @@ def multi_input_heuristic_iter(addr: str):
         # Use the multi_input_heuristic function to get the set of addresses that were used together as inputs with the given address
         addresses = multi_input_heuristic(a)
         
-        # Add the address to the set of visited addresses
-        visited.add(a)
+        # Add the address to the dictionary of visited addresses
+        visited[a] = True
         
         # Add the resulting set of addresses to the set of all addresses
         all_addresses.update(addresses)
         
         # Add the resulting addresses to the queue to be processed in the next iteration
         queue.extend(addresses)
-    
-    # Return the set of all addresses that were used together as inputs with the given address
-    return all_addresses
-    
-def multi_input_heuristic_iter_parallel(addr: str):
-    # Initialize the set of all addresses to be empty
-    all_addresses = set()
-    
-    # Initialize the queue of addresses to process with the given address
-    queue = [addr]
-    
-    # Initialize the set of visited addresses to be empty
-    visited = set()
-    
-    # Define a helper function that processes the given address and adds its results to the set of all addresses
-    def helper(addr: str, all_addresses: set, visited: set, queue: list):
-        # If the address has already been visited, return
-        if addr in visited:
-            return
-        
-        # Use the multi_input_heuristic function to get the set of addresses that were used together as inputs with the given address
-        addresses = multi_input_heuristic(addr)
-        
-        # Add the address to the set of visited addresses
-        visited.add(addr)
-        
-        # Add the resulting set of addresses to the set of all addresses
-        all_addresses.update(addresses)
-        
-        # Add the resulting addresses to the queue to be processed in the next iteration
-        queue.extend(addresses)
-    
-    # Use a while loop to repeatedly apply the multi_input_heuristic function until the queue is empty
-    while queue:
-        # Start a new process for each address in the queue
-        processes = []
-        for a in queue:
-            p = Process(target=helper, args=(a, all_addresses, visited, queue))
-            p.start()
-            processes.append(p)
-        
-        # Wait for all processes to finish
-        for p in processes:
-            p.join()
-        
-        # Clear the queue
-        queue.clear()
     
     # Return the set of all addresses that were used together as inputs with the given address
     return all_addresses
@@ -194,7 +148,7 @@ def get_related_addresses(addr: str):
         # Skip the address if it is already part of a heuristic result
         if any(address in result for result in heuristic_results):
             continue
-        result = multi_input_heuristic_iter_parallel(address)
+        result = multi_input_heuristic_iter(address)
         # Add the result to the list of heuristic results
         print("Found Entity: ")
         print(result)
@@ -212,12 +166,16 @@ def get_related_addresses(addr: str):
                 
 
 if __name__ == "__main__":
-    # a = multi_input_heuristic_rec("1NDyJtNTjmwk5xPNhjgAMu4HDHigtobu1s")    
+    
+    # b = multi_input_heuristic_iter("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
+    # print(b)
+    
+    # a = multi_input_heuristic_rec("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi", 100)    
     # print(a)
     
     # a = get_all_Txs("1M6EFBLRZHWMttk2hsGK8ttf1AXBaxjm9r")
     # print(a)
-    f = get_related_addresses("1Frg9Wm3WfdMwru2GGnmuFmk3WtnegQ47B")
+    f = get_related_addresses("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
     print(f)
     
     

@@ -9,7 +9,8 @@ from neo4j import GraphDatabase
 from union_find import UnionFind
 import pandas as pd
 import csv
-import multiprocessing
+from typing import Set
+import multiprocessing as mp
 import time
 
 
@@ -127,35 +128,52 @@ def multi_input_heuristic_iter(addr: str):
     # Return the set of all addresses that were used together as inputs with the given address
     return all_addresses
 
-def multi_input_heuristic_parallel(addr: str):
-    # Initialize the set of all addresses to be empty
-    all_addresses = multiprocessing.Manager().dict()
-    
+def multi_input_heuristic_parallel(addr: str) -> Set[str]:
+    # Set of addresses that have already been visited
+    visited = set()
+    # Set of addresses that were identified as potentially suspicious
+    results = set()
+
     # Initialize the queue of addresses to process with the given address
-    queue = multiprocessing.Queue()
-    queue.put(addr)
+    queue = [addr]
+    
+    # Initialize the number of active processes
+    active_processes = 0
 
-    # Create a pool of worker threads
-    with multiprocessing.dummy.Pool() as pool:
-        while not queue.empty():
-            # Pop the first address from the queue
-            address = queue.get()
+    while len(queue) > 0 or active_processes > 0:
+        # If there are no more addresses in the queue and all processes have finished,
+        # we are done and can return the results
+        if len(queue) == 0 and active_processes == 0:
+            return results
 
-            # Apply the multi_input_heuristic() function to this address
-            # using the map() method of the pool of worker threads
-            addresses = pool.map(multi_input_heuristic, [address])
+        # If there are no more addresses in the queue, but some processes are still active,
+        # we can wait for them to finish and then continue processing the results
+        if len(queue) == 0 and active_processes > 0:
+            time.sleep(0.1)
+            continue
 
-            # Add the resulting addresses to the set of all addresses and the queue
-            # if they have not been processed before
-            for s in addresses:
-                for a in s:
-                    if a not in all_addresses:
-                        all_addresses.add(a)
-                        queue.append(a)
-                        
-    # Return the set of all addresses
-    return all_addresses
+        # Pop the next address from the queue
+        addr = queue.pop()
 
+        # Apply the multi-input heuristic to the address
+        res = multi_input_heuristic(addr)
+
+        # Add the address to the visited set
+        visited.add(addr)
+
+        # For each of the addresses returned by the multi-input heuristic,
+        # apply the heuristic in parallel and add the address to the queue
+        # if it has not already been visited
+        for a in res:
+            if a not in visited:
+                queue.append(a)
+                active_processes += 1
+                mp.Process(target=multi_input_heuristic_iter, args=(a, results)).start()
+
+        # Wait for all processes to finish and then add the returned addresses
+        # to the results set
+        active_processes -= 1
+        results.update(res)
 
 def get_related_addresses(addr: str):
     # Get all transactions for the given address
@@ -200,10 +218,10 @@ def test(addr:str, n:int = 1):
     list2 = list()
 
     for i in range(n):
-        start = time.time()
-        a = multi_input_heuristic_iter(addr)
-        end = time.time()
-        list1.append(round(end - start,2))
+        # start = time.time()
+        # a = multi_input_heuristic_iter(addr)
+        # end = time.time()
+        # list1.append(round(end - start,2))
         
         start = time.time()
         a = multi_input_heuristic_parallel(addr)
@@ -211,7 +229,7 @@ def test(addr:str, n:int = 1):
         end = time.time()
         list2.append(round(end - start,2))
         
-    print("Iter: " + str(sum(list1) / len(list1)))
+    # print("Iter: " + str(sum(list1) / len(list1)))
     print("Parallel: " + str(sum(list2) / len(list2)))              
 
 if __name__ == "__main__":
@@ -227,7 +245,7 @@ if __name__ == "__main__":
     # f = get_related_addresses("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
     # print(f)
     
-    test("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi", 5)
+    test("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi", 1)
     
     
     driver.close()

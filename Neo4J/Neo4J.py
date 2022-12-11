@@ -106,7 +106,8 @@ def multi_input_heuristic_iter(addr: str):
         # Add the address to the set of visited addresses
         visited.add(a)      
         # Add the resulting set of addresses to the set of all addresses
-        all_addresses.update(addresses)     
+        all_addresses.update(addresses)
+        print(len(all_addresses))
         # Add the resulting addresses to the queue to be processed in the next iteration
         queue.extend(addresses)  
     # Return the set of all addresses that were used together as inputs with the given address
@@ -170,7 +171,7 @@ if __name__ == "__main__":
     # c = multi_input_heuristic_parallel("1FjKzGEyh9au36Zkwb3THV5k6ySXrpfVLh")
     # print(c) 
     
-    test("1FjKzGEyh9au36Zkwb3THV5k6ySXrpfVLh", 1)
+    test("19pT6U687uCap6dcK1yFT4V31ZYCyjeKaz", 1)
 
     
     driver.close()

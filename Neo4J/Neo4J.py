@@ -9,8 +9,6 @@ from neo4j import GraphDatabase
 import pandas as pd
 import multiprocessing
 import time
-import numpy as np
-import matplotlib.pyplot as plt
 
 
 # Replace "bolt_uri" and "password" with the bolt URI and password for your Neo4J database
@@ -172,7 +170,7 @@ if __name__ == "__main__":
     # c = multi_input_heuristic_parallel("1FjKzGEyh9au36Zkwb3THV5k6ySXrpfVLh")
     # print(c) 
     
-    test("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi", 1000)
+    test("bc1q0f9ewrv3cqv54yucdg7v2ups2yvrwpwnsla06w", 1)
 
     
     driver.close()

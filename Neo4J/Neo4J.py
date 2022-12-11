@@ -147,12 +147,12 @@ def test(addr:str, n:int = 1):
         end = time.time()
         list2.append(round(end - start,2))
         print("Parallel: " + str(end - start))
-        start = time.time()
-        multi_input_heuristic_iter(addr)
-        end = time.time()
-        list1.append(round(end - start,2))
+        # start = time.time()
+        # multi_input_heuristic_iter(addr)
+        # end = time.time()
+        # list1.append(round(end - start,2))
         
-    print("Iter Avg.: " + str(sum(list1) / len(list1)))
+    # print("Iter Avg.: " + str(sum(list1) / len(list1)))
     print("Parallel Avg.: " + str(sum(list2) / len(list2)))
     
 
@@ -171,7 +171,7 @@ if __name__ == "__main__":
     # c = multi_input_heuristic_parallel("1FjKzGEyh9au36Zkwb3THV5k6ySXrpfVLh")
     # print(c) 
     
-    test("19pT6U687uCap6dcK1yFT4V31ZYCyjeKaz", 1)
+    test("19pT6U687uCap6dcK1yFT4V31ZYCyjeKaz", 10)
 
     
     driver.close()

@@ -146,11 +146,12 @@ def multi_input_heuristic_parallel(addr: str):
 
             # Add the resulting addresses to the set of all addresses and the queue
             # if they have not been processed before
-            for a in addresses:
-                if a not in all_addresses:
-                    all_addresses.add(a)
-                    queue.append(a)
-
+            for s in addresses:
+                for a in s:
+                    if a not in all_addresses:
+                        all_addresses.add(a)
+                        queue.append(a)
+                        
     # Return the set of all addresses
     return all_addresses
 

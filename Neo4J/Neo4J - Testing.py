@@ -129,19 +129,20 @@ def multi_input_heuristic_iter(addr: str):
 
 def multi_input_heuristic_parallel(addr: str):
     # Initialize the set of all addresses to be empty
-    all_addresses = set()
+    all_addresses = multiprocessing.Manager().set()
     
     # Initialize the queue of addresses to process with the given address
-    queue = [addr] 
+    queue = multiprocessing.Queue()
+    queue.put(addr)
 
-    # Create a pool of workers
-    with multiprocessing.Pool() as pool:
-        while len(queue) > 0:
+    # Create a pool of worker threads
+    with multiprocessing.dummy.Pool() as pool:
+        while not queue.empty():
             # Pop the first address from the queue
-            address = queue.pop(0)
+            address = queue.get()
 
             # Apply the multi_input_heuristic() function to this address
-            # using the map() method of the pool of workers
+            # using the map() method of the pool of worker threads
             addresses = pool.map(multi_input_heuristic, [address])
 
             # Add the resulting addresses to the set of all addresses and the queue
@@ -206,6 +207,7 @@ def test(addr:str, n:int = 1):
         
         start = time.time()
         a = multi_input_heuristic_parallel(addr)
+        print(a)
         end = time.time()
         list2.append(round(end - start,2))
         

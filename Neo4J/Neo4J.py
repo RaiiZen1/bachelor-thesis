@@ -170,7 +170,7 @@ if __name__ == "__main__":
     # c = multi_input_heuristic_parallel("1FjKzGEyh9au36Zkwb3THV5k6ySXrpfVLh")
     # print(c) 
     
-    test("bc1q0f9ewrv3cqv54yucdg7v2ups2yvrwpwnsla06w", 1)
+    test("31oZ73ytkMfT5eHnCwx8cLqfxx2Ds8WjKg", 5)
 
     
     driver.close()

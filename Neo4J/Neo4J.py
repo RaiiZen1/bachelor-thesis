@@ -143,7 +143,8 @@ def test(addr:str, n:int = 1):
 
     for i in range(n):
         start = time.time()
-        multi_input_heuristic_parallel(addr)
+        a = multi_input_heuristic_parallel(addr)
+        print(a)
         end = time.time()
         list2.append(round(end - start,2))
         print("Parallel: " + str(end - start))

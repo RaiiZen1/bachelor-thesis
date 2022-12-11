@@ -129,7 +129,7 @@ def multi_input_heuristic_iter(addr: str):
 
 def multi_input_heuristic_parallel(addr: str):
     # Initialize the set of all addresses to be empty
-    all_addresses = multiprocessing.Manager().set()
+    all_addresses = multiprocessing.Manager().dict()
     
     # Initialize the queue of addresses to process with the given address
     queue = multiprocessing.Queue()

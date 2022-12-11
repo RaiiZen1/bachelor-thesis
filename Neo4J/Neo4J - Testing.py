@@ -9,9 +9,8 @@ from neo4j import GraphDatabase
 from union_find import UnionFind
 import pandas as pd
 import csv
-from multiprocessing import Process, Manager
-
-
+import multiprocessing
+import time
 
 
 # Replace "bolt_uri" and "password" with the bolt URI and password for your Neo4J database
@@ -128,6 +127,33 @@ def multi_input_heuristic_iter(addr: str):
     # Return the set of all addresses that were used together as inputs with the given address
     return all_addresses
 
+def multi_input_heuristic_parallel(addr: str):
+    # Initialize the set of all addresses to be empty
+    all_addresses = set()
+    
+    # Initialize the queue of addresses to process with the given address
+    queue = [addr] 
+
+    # Create a pool of workers
+    with multiprocessing.Pool() as pool:
+        while len(queue) > 0:
+            # Pop the first address from the queue
+            address = queue.pop(0)
+
+            # Apply the multi_input_heuristic() function to this address
+            # using the map() method of the pool of workers
+            addresses = pool.map(multi_input_heuristic, [address])
+
+            # Add the resulting addresses to the set of all addresses and the queue
+            # if they have not been processed before
+            for a in addresses:
+                if a not in all_addresses:
+                    all_addresses.add(a)
+                    queue.append(a)
+
+    # Return the set of all addresses
+    return all_addresses
+
 
 def get_related_addresses(addr: str):
     # Get all transactions for the given address
@@ -163,7 +189,28 @@ def get_related_addresses(addr: str):
             for address in result:
                 row.append("{}".format(address))
             writer.writerows([row])
-                
+  
+
+
+
+def test(addr:str, n:int = 1):
+    list1 = list()
+    list2 = list()
+
+    for i in range(n):
+        start = time.time()
+        a = multi_input_heuristic_iter(addr)
+        end = time.time()
+        list1.append(round(end - start,2))
+        
+        start = time.time()
+        a = multi_input_heuristic_parallel(addr)
+        print(a)
+        end = time.time()
+        list2.append(round(end - start,2))
+        
+    print("Iter: " + str(sum(list1) / len(list1)))
+    print("Parallel: " + str(sum(list2) / len(list2)))              
 
 if __name__ == "__main__":
     
@@ -175,8 +222,10 @@ if __name__ == "__main__":
     
     # a = get_all_Txs("1M6EFBLRZHWMttk2hsGK8ttf1AXBaxjm9r")
     # print(a)
-    f = get_related_addresses("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
-    print(f)
+    # f = get_related_addresses("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
+    # print(f)
+    
+    test("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi", 5)
     
     
     driver.close()

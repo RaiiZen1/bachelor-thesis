@@ -128,7 +128,7 @@ def multi_input_heuristic_iter(addr: str):
     # Return the set of all addresses that were used together as inputs with the given address
     return all_addresses
 
-def multi_input_heuristic_parallel(addr: str) -> Set[str]:
+def get_suspicious_addresses(addr: str) -> Set[str]:
     # Set of addresses that have already been visited
     visited = set()
     # Set of addresses that were identified as potentially suspicious
@@ -168,7 +168,7 @@ def multi_input_heuristic_parallel(addr: str) -> Set[str]:
             if a not in visited:
                 queue.append(a)
                 active_processes += 1
-                mp.Process(target=multi_input_heuristic_iter, args=(a, results)).start()
+                mp.Process(target=multi_input_heuristic, args=(a,)).start()
 
         # Wait for all processes to finish and then add the returned addresses
         # to the results set
@@ -224,7 +224,7 @@ def test(addr:str, n:int = 1):
         # list1.append(round(end - start,2))
         
         start = time.time()
-        a = multi_input_heuristic_parallel(addr)
+        a = get_suspicious_addresses(addr)
         print(a)
         end = time.time()
         list2.append(round(end - start,2))

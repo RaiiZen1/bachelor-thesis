@@ -89,47 +89,93 @@ def multi_input_heuristic(addr:str):
     return addresses
 
 
-def multi_input_heuristic_parallel(addr: str):
+def multi_input_heuristic_iter(addr: str):
     # Initialize the set of all addresses to be empty
     all_addresses = set()
     
     # Initialize the queue of addresses to process with the given address
-    queue = [addr] 
-
-    # Create a pool of workers
-    with multiprocessing.Pool() as pool:
-        while queue:
-            # Divide the queue into chunks and process each chunk in parallel
-            results = pool.map(multi_input_heuristic, queue)
-            
-            # Flatten the results into a single list of addresses
-            addresses = [address for result in results for address in result]
-            
-            # Update the set of all addresses with the new addresses
-            all_addresses.update(addresses)
-            
-            # Update the queue with the new addresses
-            queue = [address for address in addresses if address not in all_addresses]
-
+    queue = [addr]
+    
+    # Initialize the dictionary of visited addresses to be empty
+    visited = {}
+    
+    # Use a while loop to repeatedly apply the multi_input_heuristic function until the queue is empty
+    while queue:
+        # Get the next address from the queue
+        a = queue.pop()
+        
+        # If the address has already been visited, continue to the next iteration
+        if a in visited:
+            continue
+        
+        # Use the multi_input_heuristic function to get the set of addresses that were used together as inputs with the given address
+        addresses = multi_input_heuristic(a)
+        
+        # Add the address to the dictionary of visited addresses
+        visited[a] = True
+        
+        # Add the resulting set of addresses to the set of all addresses
+        all_addresses.update(addresses)
+        
+        # Add the resulting addresses to the queue to be processed in the next iteration
+        queue.extend(addresses)
+    
+    # Return the set of all addresses that were used together as inputs with the given address
     return all_addresses
 
-# def test(addr:str, n:int = 1):
-#     list1 = list()
-#     list2 = list()
+def multi_input_heuristic_iter2(addr: str):
+    # Check that the input is a non-empty string
+    if not isinstance(addr, str) or not addr:
+        raise ValueError('Input must be a non-empty string')
+        
+    # Initialize the set of all addresses to be empty
+    all_addresses = set()
+    
+    # Initialize the list of addresses to process with the given address
+    addr_list = [addr]
+    
+    # Initialize the set of visited addresses to be empty
+    visited = set()
+    
+    # Use a for loop to iterate over the elements in the list of addresses
+    for a in addr_list:
+        # If the address has already been visited, continue to the next iteration
+        if a in visited:
+            continue
+        
+        # Use the multi_input_heuristic function to get the set of addresses that were used together as inputs with the given address
+        addresses = multi_input_heuristic(a)
+        
+        # Add the address to the set of visited addresses
+        visited.add(a)
+        
+        # Add the resulting set of addresses to the set of all addresses
+        all_addresses.update(addresses)
+        
+        # Add the resulting addresses to the list of addresses to be processed in the next iteration
+        addr_list.extend(addresses)
+    
+    # Return the set of all addresses that were used together as inputs with the given address
+    return all_addresses
 
-#     for i in range(n):
-#         start = time.time()
-#         # multi_input_heuristic_iter(addr)
-#         end = time.time()
-#         list1.append(round(end - start,2))
+
+def test(addr:str, n:int = 1):
+    list1 = list()
+    list2 = list()
+    for i in range(n):
+        start = time.time()
+        a = multi_input_heuristic_iter(addr)
+        end = time.time()
+        list1.append(round(end - start,2))
         
-#         start = time.time()
-#         multi_input_heuristic_parallel(addr)
-#         end = time.time()
-#         list2.append(round(end - start,2))
+        start = time.time()
+        b = multi_input_heuristic_iter2(addr)
+        end = time.time()
+        list2.append(round(end - start,2))
         
-#     print("Iter: " + str(sum(list1) / len(list1)))
-#     print("Parallel: " + str(sum(list2) / len(list2)))
+    print(a, b)
+    print("Iter: " + str(sum(list1) / len(list1)))
+    print("Iter2: " + str(sum(list2) / len(list2)))
     
 
 
@@ -144,10 +190,10 @@ if __name__ == "__main__":
     # c = multi_input_heuristic_iter("1FjKzGEyh9au36Zkwb3THV5k6ySXrpfVLh")
     # print(c) 
     
-    c = multi_input_heuristic_parallel("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
-    print(c) 
+    # c = multi_input_heuristic_parallel("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
+    # print(c) 
     
-    # test("1FjKzGEyh9au36Zkwb3THV5k6ySXrpfVLh", 10)
+    test("3MhvvejWmJWECRoMJUMXtRBbRdJCK2EEzk", 10)
 
     
     driver.close()

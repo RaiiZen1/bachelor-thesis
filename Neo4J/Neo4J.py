@@ -145,7 +145,7 @@ def test(addr:str, n:int = 1):
         multi_input_heuristic_parallel(addr)
         end = time.time()
         list2.append(round(end - start,2))
-        print("Parallel: " + str(end - start)
+        print("Parallel: " + str(end - start))
         start = time.time()
         multi_input_heuristic_iter(addr)
         end = time.time()

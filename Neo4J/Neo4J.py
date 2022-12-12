@@ -148,7 +148,7 @@ def multi_input_heuristic_iter2(addr: str):
     results = set()
     visited = set()
     set_A = multi_input_heuristic(addr)
-
+    print(set_A)
     # Keep applying multi_input_heuristic() to the set_A until no new addresses are found
     while set_A:
         print("AAAAAA")

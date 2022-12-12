@@ -123,26 +123,23 @@ def multi_input_heuristic_iter(addr: str):
     # Return the set of all addresses that were used together as inputs with the given address
     return all_addresses
 
+
 # def multi_input_heuristic_iter2(addr: str):
 #     # Initialize the set of all addresses to be empty
 #     results = set()
+#     visited = set()
 #     set_A = multi_input_heuristic(addr)
-#     n = 0
+    
 #     # Keep applying multi_input_heuristic() to the set_A until no new addresses are found
 #     while set_A:
-#         print("N: " + str(n))
-#         n += 1
-#         # print(set_A)
+#         visited = visited.union(set_A)
 #         # Use a ProcessPoolExecutor to concurrently apply multi_input_heuristic() to each element in set_A
 #         with concurrent.futures.ProcessPoolExecutor() as executor:
-#             m = 0
 #             for set_B in executor.map(multi_input_heuristic, set_A):
-#                 m += 1
 #                 results = results.union(set_B)
+
 #         # Set set_A to be the new addresses found in the previous step
-#             print("M: " + str(m))
-#             print(results)
-#         set_A = results.difference(set_A)
+#         set_A = results.difference(visited)
     
 #     return results
 
@@ -151,21 +148,21 @@ def multi_input_heuristic_iter2(addr: str):
     results = set()
     visited = set()
     set_A = multi_input_heuristic(addr)
-    
+
     # Keep applying multi_input_heuristic() to the set_A until no new addresses are found
     while set_A:
-        visited = visited.union(set_A)
         # Use a ProcessPoolExecutor to concurrently apply multi_input_heuristic() to each element in set_A
         with concurrent.futures.ProcessPoolExecutor() as executor:
             for set_B in executor.map(multi_input_heuristic, set_A):
                 results = results.union(set_B)
 
-        # Set set_A to be the new addresses found in the previous step
+        # Update the visited set with the addresses in set_A
+        visited = visited.union(set_A)
+
+        # Set set_A to be the new addresses found in the previous step that have not already been visited
         set_A = results.difference(visited)
     
     return results
-
-
 
 def test(addr:str, n:int = 1):
     list1 = list()
@@ -202,7 +199,7 @@ if __name__ == "__main__":
     # c = multi_input_heuristic_parallel("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
     # print(c) 
     
-    test("1FjKzGEyh9au36Zkwb3THV5k6ySXrpfVLh", 5)
+    test("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi", 5)
 
     
     driver.close()

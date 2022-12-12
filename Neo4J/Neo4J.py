@@ -186,7 +186,7 @@ def test(addr:str, n:int = 1):
         list2.append(round(end - start,2))
         
     print(b)
-    # print("Iter: " + str(sum(list1) / len(list1)))
+    print("Iter: " + str(sum(list1) / len(list1)))
     print("Iter2: " + str(sum(list2) / len(list2)))
     
 

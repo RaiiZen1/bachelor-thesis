@@ -154,8 +154,6 @@ def multi_input_heuristic_iter2(addr: str):
     
     # Keep applying multi_input_heuristic() to the set_A until no new addresses are found
     while set_A:
-        print("Set A")
-        print(set_A)
         visited = visited.union(set_A)
         # Use a ProcessPoolExecutor to concurrently apply multi_input_heuristic() to each element in set_A
         with concurrent.futures.ProcessPoolExecutor() as executor:
@@ -163,8 +161,6 @@ def multi_input_heuristic_iter2(addr: str):
                 results = results.union(set_B)
 
         # Set set_A to be the new addresses found in the previous step
-        print("Results:")
-        print(results)
         set_A = results.difference(visited)
     
     return results
@@ -185,6 +181,7 @@ def test(addr:str, n:int = 1):
         end = time.time()
         list2.append(round(end - start,2))
         
+    print(a)
     print(b)
     print("Iter: " + str(sum(list1) / len(list1)))
     print("Iter2: " + str(sum(list2) / len(list2)))
@@ -205,7 +202,7 @@ if __name__ == "__main__":
     # c = multi_input_heuristic_parallel("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
     # print(c) 
     
-    test("3MhvvejWmJWECRoMJUMXtRBbRdJCK2EEzk", 1)
+    test("1FjKzGEyh9au36Zkwb3THV5k6ySXrpfVLh", 5)
 
     
     driver.close()

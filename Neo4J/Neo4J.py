@@ -7,7 +7,7 @@ Created on Tue Dec  6 16:10:46 2022
 
 from neo4j import GraphDatabase
 import pandas as pd
-import multiprocessing
+import concurrent.futures
 import time
 
 
@@ -123,40 +123,52 @@ def multi_input_heuristic_iter(addr: str):
     # Return the set of all addresses that were used together as inputs with the given address
     return all_addresses
 
+# def multi_input_heuristic_iter2(addr: str):
+#     # Initialize the set of all addresses to be empty
+#     results = set()
+#     set_A = multi_input_heuristic(addr)
+#     n = 0
+#     # Keep applying multi_input_heuristic() to the set_A until no new addresses are found
+#     while set_A:
+#         print("N: " + str(n))
+#         n += 1
+#         # print(set_A)
+#         # Use a ProcessPoolExecutor to concurrently apply multi_input_heuristic() to each element in set_A
+#         with concurrent.futures.ProcessPoolExecutor() as executor:
+#             m = 0
+#             for set_B in executor.map(multi_input_heuristic, set_A):
+#                 m += 1
+#                 results = results.union(set_B)
+#         # Set set_A to be the new addresses found in the previous step
+#             print("M: " + str(m))
+#             print(results)
+#         set_A = results.difference(set_A)
+    
+#     return results
+
 def multi_input_heuristic_iter2(addr: str):
-    # Check that the input is a non-empty string
-    if not isinstance(addr, str) or not addr:
-        raise ValueError('Input must be a non-empty string')
-        
     # Initialize the set of all addresses to be empty
-    all_addresses = set()
-    
-    # Initialize the list of addresses to process with the given address
-    addr_list = [addr]
-    
-    # Initialize the set of visited addresses to be empty
+    results = set()
     visited = set()
+    set_A = multi_input_heuristic(addr)
     
-    # Use a for loop to iterate over the elements in the list of addresses
-    for a in addr_list:
-        # If the address has already been visited, continue to the next iteration
-        if a in visited:
-            continue
-        
-        # Use the multi_input_heuristic function to get the set of addresses that were used together as inputs with the given address
-        addresses = multi_input_heuristic(a)
-        
-        # Add the address to the set of visited addresses
-        visited.add(a)
-        
-        # Add the resulting set of addresses to the set of all addresses
-        all_addresses.update(addresses)
-        
-        # Add the resulting addresses to the list of addresses to be processed in the next iteration
-        addr_list.extend(addresses)
+    # Keep applying multi_input_heuristic() to the set_A until no new addresses are found
+    while set_A:
+        print("Set A")
+        print(set_A)
+        visited = visited.union(set_A)
+        # Use a ProcessPoolExecutor to concurrently apply multi_input_heuristic() to each element in set_A
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            for set_B in executor.map(multi_input_heuristic, set_A):
+                results = results.union(set_B)
+
+        # Set set_A to be the new addresses found in the previous step
+        print("Results:")
+        print(results)
+        set_A = results.difference(visited)
     
-    # Return the set of all addresses that were used together as inputs with the given address
-    return all_addresses
+    return results
+
 
 
 def test(addr:str, n:int = 1):
@@ -173,8 +185,8 @@ def test(addr:str, n:int = 1):
         end = time.time()
         list2.append(round(end - start,2))
         
-    print(a, b)
-    print("Iter: " + str(sum(list1) / len(list1)))
+    print(b)
+    # print("Iter: " + str(sum(list1) / len(list1)))
     print("Iter2: " + str(sum(list2) / len(list2)))
     
 
@@ -193,7 +205,7 @@ if __name__ == "__main__":
     # c = multi_input_heuristic_parallel("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
     # print(c) 
     
-    test("3MhvvejWmJWECRoMJUMXtRBbRdJCK2EEzk", 10)
+    test("3MhvvejWmJWECRoMJUMXtRBbRdJCK2EEzk", 1)
 
     
     driver.close()

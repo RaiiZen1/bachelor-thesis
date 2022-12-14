@@ -194,6 +194,6 @@ def get_related_entities(addr: str):
 
 if __name__ == "__main__":
     
-    get_related_entities("1GMtZ1SvuDPFJjxeNAMse4RyB8RckF5Jqd")
+    get_related_entities("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
     driver.close()
     

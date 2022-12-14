@@ -155,10 +155,10 @@ def multi_input_heuristic_iter2(addr: str):
         # Use a ProcessPoolExecutor to concurrently apply multi_input_heuristic() to each element in set_A
         with concurrent.futures.ProcessPoolExecutor() as executor:
             c = executor.map(multi_input_heuristic, set_A)
-            print(c.tostring())
-            for set_B in executor.map(multi_input_heuristic, set_A):
-                print("BBBBB")
-                results = results.union(set_B)
+            print(c)
+            #for set_B in executor.map(multi_input_heuristic, set_A):
+             #   print("BBBBB")
+              #  results = results.union(set_B)
 
         # Update the visited set with the addresses in set_A
         visited = visited.union(set_A)

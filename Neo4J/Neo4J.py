@@ -78,15 +78,20 @@ def get_all_Addr(tx:str):
 
 # This method applies the multi input heuristic on a given address
 def multi_input_heuristic(addr:str):
-    txs = get_all_Txs(addr)
-    # Filter the transactions to only include those with a negative result
-    txs = txs[txs["result"] < 0]
-    # Get the set of addresses that were used as inputs in transactions with multiple inputs
-    addresses = set()
-    for _, tx in txs[txs["inDegree"] > 1].iterrows():
-        addr_df = get_all_Addr(tx["txid"])   
-        addresses.update(set(addr_df[addr_df["type"] == "SENDS"]["address"]))
-    return addresses
+    with driver.session() as session:
+        result = session.run(
+            """
+            MATCH (a:Address{address: $address})-[:SENDS]->(t:Transaction)
+            WITH DISTINCT t
+            MATCH (t)-[:SENDS]-(a2:Address)
+            WITH DISTINCT a2
+            RETURN a2
+            """,
+            address=addr,
+        )
+        # Convert the results into a set 
+        data = {record["a2"]["address"] for record in result}       
+    return data
 
 
 def multi_input_heuristic_iter(addr: str):
@@ -124,49 +129,25 @@ def multi_input_heuristic_iter(addr: str):
     return all_addresses
 
 
-# def multi_input_heuristic_iter2(addr: str):
-#     # Initialize the set of all addresses to be empty
-#     results = set()
-#     visited = set()
-#     set_A = multi_input_heuristic(addr)
-    
-#     # Keep applying multi_input_heuristic() to the set_A until no new addresses are found
-#     while set_A:
-#         visited = visited.union(set_A)
-#         # Use a ProcessPoolExecutor to concurrently apply multi_input_heuristic() to each element in set_A
-#         with concurrent.futures.ProcessPoolExecutor() as executor:
-#             for set_B in executor.map(multi_input_heuristic, set_A):
-#                 results = results.union(set_B)
-
-#         # Set set_A to be the new addresses found in the previous step
-#         set_A = results.difference(visited)
-    
-#     return results
-
 def multi_input_heuristic_iter2(addr: str):
     # Initialize the set of all addresses to be empty
     results = set()
     visited = set()
     set_A = multi_input_heuristic(addr)
-    print(set_A)
+    
     # Keep applying multi_input_heuristic() to the set_A until no new addresses are found
     while set_A:
-        print("AAAAAA")
+        visited = visited.union(set_A)
         # Use a ProcessPoolExecutor to concurrently apply multi_input_heuristic() to each element in set_A
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            c = executor.map(multi_input_heuristic, set_A)
-            print(c)
-            #for set_B in executor.map(multi_input_heuristic, set_A):
-             #   print("BBBBB")
-              #  results = results.union(set_B)
+            for set_B in executor.map(multi_input_heuristic, set_A):
+                results = results.union(set_B)
 
-        # Update the visited set with the addresses in set_A
-        visited = visited.union(set_A)
-
-        # Set set_A to be the new addresses found in the previous step that have not already been visited
+        # Set set_A to be the new addresses found in the previous step
         set_A = results.difference(visited)
     
     return results
+
 
 def test(addr:str, n:int = 1):
     list1 = list()
@@ -204,6 +185,9 @@ if __name__ == "__main__":
     # print(c) 
     
     test("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi", 5)
+    
+    # c = multi_input_heuristic("36CVcEXqdGik7y4ySmyA4V3Sfh7GVgUJeo")
+    # print(c)
 
     
     driver.close()

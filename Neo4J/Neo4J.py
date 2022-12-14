@@ -184,7 +184,7 @@ if __name__ == "__main__":
     # c = multi_input_heuristic_parallel("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
     # print(c) 
     
-    test("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi", 5)
+    test("31wrujVVhf92puvwe4uE1cDgKNc4gXuQRz", 1)
     
     # c = multi_input_heuristic("36CVcEXqdGik7y4ySmyA4V3Sfh7GVgUJeo")
     # print(c)

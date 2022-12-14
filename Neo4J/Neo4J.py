@@ -155,7 +155,7 @@ def multi_input_heuristic_iter2(addr: str):
         # Use a ProcessPoolExecutor to concurrently apply multi_input_heuristic() to each element in set_A
         with concurrent.futures.ProcessPoolExecutor() as executor:
             c = executor.map(multi_input_heuristic, set_A)
-            print(c)
+            print(c.to_string())
             for set_B in executor.map(multi_input_heuristic, set_A):
                 print("BBBBB")
                 results = results.union(set_B)

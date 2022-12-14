@@ -158,15 +158,15 @@ def test(addr:str, n:int = 1):
         end = time.time()
         list1.append(round(end - start,2))
         
-        start = time.time()
-        b = multi_input_heuristic_iter2(addr)
-        end = time.time()
-        list2.append(round(end - start,2))
+        # start = time.time()
+        # b = multi_input_heuristic_iter2(addr)
+        # end = time.time()
+        # list2.append(round(end - start,2))
         
     print(a)
-    print(b)
+    # print(b)
     print("Iter: " + str(sum(list1) / len(list1)))
-    print("Iter2: " + str(sum(list2) / len(list2)))
+    # print("Iter2: " + str(sum(list2) / len(list2)))
     
 
 

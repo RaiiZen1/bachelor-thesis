@@ -7,8 +7,8 @@ Created on Tue Dec  6 16:10:46 2022
 
 from neo4j import GraphDatabase
 import pandas as pd
-import concurrent.futures
-import time
+import csv
+# import time
 
 
 
@@ -93,103 +93,107 @@ def multi_input_heuristic(addr:str):
         data = {record["a2"]["address"] for record in result}       
     return data
 
-
 def multi_input_heuristic_iter(addr: str):
+            
     # Initialize the set of all addresses to be empty
     all_addresses = set()
-    
+
     # Initialize the queue of addresses to process with the given address
     queue = [addr]
-    
+   
     # Initialize the dictionary of visited addresses to be empty
     visited = {}
-    
     # Use a while loop to repeatedly apply the multi_input_heuristic function until the queue is empty
     while queue:
+        
         # Get the next address from the queue
         a = queue.pop()
-        
+    
         # If the address has already been visited, continue to the next iteration
         if a in visited:
             continue
-        
+    
         # Use the multi_input_heuristic function to get the set of addresses that were used together as inputs with the given address
         addresses = multi_input_heuristic(a)
-        
+
         # Add the address to the dictionary of visited addresses
         visited[a] = True
-        
+    
         # Add the resulting set of addresses to the set of all addresses
         all_addresses.update(addresses)
-        print(str(len(all_addresses)) + " addresses found!")
-        
+        # print(str(len(all_addresses)) + " addresses found!")
+    
         # Add the resulting addresses to the queue to be processed in the next iteration
-        queue.extend(addresses)
+        queue = ([addr for addr in addresses if addr not in visited]) + queue
     
     # Return the set of all addresses that were used together as inputs with the given address
     return all_addresses
 
-
-def multi_input_heuristic_iter2(addr: str):
-    # Initialize the set of all addresses to be empty
-    results = set()
-    visited = set()
-    set_A = multi_input_heuristic(addr)
-    
-    # Keep applying multi_input_heuristic() to the set_A until no new addresses are found
-    while set_A:
-        visited = visited.union(set_A)
-        # Use a ProcessPoolExecutor to concurrently apply multi_input_heuristic() to each element in set_A
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            for set_B in executor.map(multi_input_heuristic, set_A):
-                results = results.union(set_B)
-
-        # Set set_A to be the new addresses found in the previous step
-        set_A = results.difference(visited)
-    
-    return results
-
-
-def test(addr:str, n:int = 1):
-    list1 = list()
-    list2 = list()
-    for i in range(n):
-        start = time.time()
-        a = multi_input_heuristic_iter(addr)
-        end = time.time()
-        list1.append(round(end - start,2))
+# def test(addr:str, n:int = 1):
+#     list1 = list()
+#     list2 = list()
+#     for i in range(round(n/2)):
+#         start = time.time()
+#         a = multi_input_heuristic_iter(addr)
+#         end = time.time()
+#         list1.append(round(end - start,2))
         
-        # start = time.time()
-        # b = multi_input_heuristic_iter2(addr)
-        # end = time.time()
-        # list2.append(round(end - start,2))
+#         start = time.time()
+#         b = multi_input_heuristic_iter2(addr)
+#         end = time.time()
+#         list2.append(round(end - start,2))
         
-    print(a)
-    # print(b)
-    print("Iter: " + str(sum(list1) / len(list1)))
-    # print("Iter2: " + str(sum(list2) / len(list2)))
+#     for i in range(round(n/2)):
+#         start = time.time()
+#         b = multi_input_heuristic_iter2(addr)
+#         end = time.time()
+#         list2.append(round(end - start,2))
+        
+#         start = time.time()
+#         a = multi_input_heuristic_iter(addr)
+#         end = time.time()
+#         list1.append(round(end - start,2))
+        
+#     print(a)
+#     print(b)
+#     print("Iter: " + str(sum(list1) / len(list1)))
+#     print("Iter2: " + str(sum(list2) / len(list2)))
     
+def get_related_entities(addr: str):
+    # Get all transactions for the given address
+    txs = get_all_Txs(addr)
+    # Filter the transactions to only include those with a positive result
+    txs = txs[txs["result"] > 0]
+    # Initialize a set to store the related addresses
+    addresses = set()
+    # For each of the transactions, apply get_all_Addr and add addresses with type "SENDS" to the set
+    for _, tx in txs.iterrows():
+        addr_df = get_all_Addr(tx["txid"])
+        for address in addr_df[addr_df["type"] == "SENDS"]["address"]:
+            addresses.add(address)
+    # Initialize a list to store the heuristic results
+    heuristic_results = []
+    # Apply the recursive multi-input heuristic on each address in the set that has not been part of a heuristic result yet
+    for address in addresses:
+        if any(address in result for result in heuristic_results):
+            continue
+        print("Looking at: " + str(address))
+        result = multi_input_heuristic_iter(address)
+        print("Found Entity: " + str(result))
+        heuristic_results.append(result)
+    # Save the heuristic results to a file
+    with open("heuristic_results.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["entities", "addresses"])
+        for i, result in enumerate(heuristic_results):
+            row = ["Entity {}:".format(i)]
+            for address in result:
+                row.append("{}".format(address))
+            writer.writerows([row])
 
 
 if __name__ == "__main__":
-
-    # a  = get_all_Txs("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
-    # print(a.iloc[0]) 
-
-    # b = get_all_Addr("92098f93bd77a746e9387f8871cc6186aada265b9d6103102cf8982f172bfc84")
-    # print(b)
     
-    # c = multi_input_heuristic_iter("1FjKzGEyh9au36Zkwb3THV5k6ySXrpfVLh")
-    # print(c) 
-    
-    # c = multi_input_heuristic_parallel("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
-    # print(c) 
-    
-    test("31wrujVVhf92puvwe4uE1cDgKNc4gXuQRz", 1)
-    
-    # c = multi_input_heuristic("36CVcEXqdGik7y4ySmyA4V3Sfh7GVgUJeo")
-    # print(c)
-
-    
+    get_related_entities("1GMtZ1SvuDPFJjxeNAMse4RyB8RckF5Jqd")
     driver.close()
     

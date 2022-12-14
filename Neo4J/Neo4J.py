@@ -121,6 +121,7 @@ def multi_input_heuristic_iter(addr: str):
         
         # Add the resulting set of addresses to the set of all addresses
         all_addresses.update(addresses)
+        print(str(len(all_addresses)) + " addresses found!")
         
         # Add the resulting addresses to the queue to be processed in the next iteration
         queue.extend(addresses)

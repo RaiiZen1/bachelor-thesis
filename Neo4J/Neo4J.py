@@ -153,7 +153,7 @@ def multi_input_heuristic_iter2(addr: str):
     while set_A:
         print("AAAAAA")
         # Use a ProcessPoolExecutor to concurrently apply multi_input_heuristic() to each element in set_A
-        with concurrent.futures.ProcessPoolExecutor() as executor:
+        with concurrent.futures.ProcessPoolExecutor(max_worker=2) as executor:
             print("CCCCCC")
             for set_B in executor.map(multi_input_heuristic, set_A):
                 print("BBBBB")

@@ -178,7 +178,7 @@ def multi_input_heuristic_iter2(addr: str):
 
             # Increment the count of new addresses found within the last minute
             new_addresses_count += (b-a)
-            print(new_addresses_count)
+            # print(new_addresses_count)
 
         # If the sum of all addresses found within the last minute is less than 100, break the while loop
         if new_addresses_count < 100:

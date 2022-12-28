@@ -8,6 +8,7 @@ Created on Tue Dec  6 16:10:46 2022
 from neo4j import GraphDatabase
 import pandas as pd
 import csv
+import matplotlib.pyplot as plt
 # import time
 
 
@@ -118,16 +119,74 @@ def multi_input_heuristic_iter(addr: str):
 
         # Add the address to the dictionary of visited addresses
         visited[a] = True
-    
+        
+        a = len(all_addresses)
         # Add the resulting set of addresses to the set of all addresses
         all_addresses.update(addresses)
-        # print(str(len(all_addresses)) + " addresses found!")
+        b = len(all_addresses)
+        print(str(len(all_addresses)) + " addresses found!", str((b - a)) + " new addreses found!")
     
         # Add the resulting addresses to the queue to be processed in the next iteration
         queue = ([addr for addr in addresses if addr not in visited]) + queue
-    
+        
     # Return the set of all addresses that were used together as inputs with the given address
     return all_addresses
+
+import time
+
+def multi_input_heuristic_iter2(addr: str):
+    # Initialize the set of all addresses to be empty
+    all_addresses = set()
+
+    # Initialize the queue of addresses to process with the given address
+    queue = [addr]
+   
+    # Initialize the dictionary of visited addresses to be empty
+    visited = {}
+    # Use a while loop to repeatedly apply the multi_input_heuristic function until the queue is empty
+    while queue:
+        # Initialize the count of new addresses found within the last minute to be 0
+        new_addresses_count = 0
+
+        # Get the current time
+        start_time = time.time()
+
+        # Use a while loop to process the addresses in the queue until the elapsed time is greater than 1 minute
+        while queue and time.time() - start_time < 60:
+            print(str(round(time.time() - start_time, 1)) + "Sekunden vergangen")
+            # Get the next address from the queue
+            a = queue.pop()
+    
+            # If the address has already been visited, continue to the next iteration
+            if a in visited:
+                continue
+    
+            # Use the multi_input_heuristic function to get the set of addresses that were used together as inputs with the given address
+            addresses = multi_input_heuristic(a)
+
+            # Add the address to the dictionary of visited addresses
+            visited[a] = True
+        
+            a = len(all_addresses)
+            # Add the resulting set of addresses to the set of all addresses
+            all_addresses.update(addresses) 
+            b = len(all_addresses)
+            print(str(len(all_addresses)) + " addresses found!", str((b - a)) + " new addreses found!")
+    
+            # Add the resulting addresses to the queue to be processed in the next iteration
+            queue = ([addr for addr in addresses if addr not in visited]) + queue
+
+            # Increment the count of new addresses found within the last minute
+            new_addresses_count += len(addresses)
+            # print(new_addresses_count)
+
+        # If the sum of all addresses found within the last minute is less than 100, break the while loop
+        if new_addresses_count < 100:
+            break
+        
+    # Return the set of all addresses that were used together as inputs with the given address
+    return all_addresses
+
 
 # def test(addr:str, n:int = 1):
 #     list1 = list()
@@ -178,7 +237,7 @@ def get_related_entities(addr: str):
         if any(address in result for result in heuristic_results):
             continue
         print("Looking at: " + str(address))
-        result = multi_input_heuristic_iter(address)
+        result = multi_input_heuristic_iter2(address)
         print("Found Entity: " + str(result))
         heuristic_results.append(result)
     # Save the heuristic results to a file
@@ -195,5 +254,30 @@ def get_related_entities(addr: str):
 if __name__ == "__main__":
     
     get_related_entities("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
+    
+    # a = multi_input_heuristic_iter("3QQdfAaPhP1YqLYMBS59BqWjcpXjXVP1wi")
+    # transactions = list()
+    # for i in a:
+    #     temp = get_all_Txs(i)
+    #     buys = len(temp[temp["result"] > 0])
+    #     sells = len(temp[temp["result"] < 0])
+    #     transactions.append((i, buys, sells))
+
+    # # Extract x and y values from the transactions list
+    # x = [transaction[2] for transaction in transactions]
+    # y = [transaction[1] for transaction in transactions]
+
+    # # Plot the x and y values
+    # plt.plot(x, y, 'bo')
+    # plt.xlabel('Sells')
+    # plt.ylabel('Buys')
+    
+    # # Add labels to the points
+    # for i, transaction in enumerate(transactions):
+    #     plt.text(x[i], y[i], transaction[0])
+    
+    # # Show the plot
+    # plt.show()
+
     driver.close()
     

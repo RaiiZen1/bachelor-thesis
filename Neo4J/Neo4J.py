@@ -222,7 +222,7 @@ def get_related_entities(addr: str):
     # Get all transactions for the given address
     txs = get_all_Txs(addr)
     # Filter the transactions to only include those with a positive result
-    txs = txs[txs["result"] > 0]
+    txs = txs[txs["result"] < 0]
     # Initialize a set to store the related addresses
     addresses = set()
     # For each of the transactions, apply get_all_Addr and add addresses with type "SENDS" to the set
@@ -241,7 +241,7 @@ def get_related_entities(addr: str):
         print("Found Entity: " + str(result))
         heuristic_results.append(result)
     # Save the heuristic results to a file
-    with open("heuristic_results.csv", "w", newline="") as f:
+    with open("heuristic_results2.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["entities", "addresses"])
         for i, result in enumerate(heuristic_results):
